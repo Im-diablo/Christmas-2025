@@ -27,6 +27,39 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
     }
   }, [volume]);
 
+  // Attempt to auto-play on mount
+  useEffect(() => {
+    const attemptAutoPlay = async () => {
+      if (audioRef.current && !isPlaying) {
+        try {
+          audioRef.current.volume = 0;
+          const playPromise = audioRef.current.play();
+
+          if (playPromise !== undefined) {
+            await playPromise;
+            // Fade in
+            gsap.to(audioRef.current, {
+              volume: volume,
+              duration: 2,
+              ease: 'power2.inOut'
+            });
+            setIsPlaying(true);
+            toast({
+              title: "Music Started 🎵",
+              description: "Playing cozy vibes",
+            });
+          }
+        } catch (error) {
+          console.log("Auto-play prevented by browser policy - waiting for user interaction");
+        }
+      }
+    };
+
+    // Small delay to ensure component is fully mounted and previous interactions are registered
+    const timeout = setTimeout(attemptAutoPlay, 1000);
+    return () => clearTimeout(timeout);
+  }, []); // Empty dependency array ensures this runs once on mount
+
   const togglePlay = async () => {
     if (audioRef.current) {
       if (isPlaying) {
