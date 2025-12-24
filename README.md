@@ -67,9 +67,5 @@ To enable the song "Snowman" by Sia (or any other track):
 
 Feel free to fork this project and submit Pull Requests! Whether it's a new ornament type, a new background effect, or a bug fix, all festive contributions are welcome.
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ---
 *Made with holiday cheer 🎅*

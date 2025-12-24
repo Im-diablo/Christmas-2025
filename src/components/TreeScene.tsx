@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { io, Socket } from 'socket.io-client';
 import ChristmasTree from './ChristmasTree';
 import DecorationPanel from './DecorationPanel';
 import DecorationItem, { Decoration } from './DecorationItem';
@@ -19,7 +20,7 @@ const TreeScene: React.FC<TreeSceneProps> = ({ roomCode = 'default' }) => {
   const [draggedDecoration, setDraggedDecoration] = useState<Decoration | null>(null);
   const treeContainerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<WebSocket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   const warmth = Math.min(100, placedDecorations.length * 8);
 
@@ -40,43 +41,52 @@ const TreeScene: React.FC<TreeSceneProps> = ({ roomCode = 'default' }) => {
     }
   }, []);
 
-  // Real-time sync with WebSocket
+  // Real-time sync using Socket.IO (works across different devices!)
   useEffect(() => {
     if (!roomCode) return;
 
-    // Connect to a free WebSocket relay service (wss://socketsbay.com/wss/v2/1/demo/)
-    // For production, you should use your own WebSocket server
-    const socket = new WebSocket(`wss://socketsbay.com/wss/v2/1/${roomCode}/`);
+    // Connect to Socket.IO server deployed on Railway
+    const socket = io('https://ch-server-production.up.railway.app', {
+      transports: ['websocket', 'polling'],
+    });
 
-    socket.addEventListener('message', (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'decoration-added' && data.decoration) {
-          setPlacedDecorations(prev => {
-            // Avoid duplicates
-            if (prev.some(d => d.placedId === data.decoration.placedId)) {
-              return prev;
-            }
-            return [...prev, data.decoration];
-          });
+    socket.on('connect', () => {
+      console.log('✅ Connected to sync server!');
+
+      // Join the room
+      socket.emit('join-room', roomCode);
+    });
+
+    socket.on('room-joined', () => {
+      console.log('🎄 Joined room:', roomCode);
+
+      // Request current decorations
+      socket.emit('request-sync', roomCode);
+    });
+
+    socket.on('decoration-added', (decoration: PlacedDecoration) => {
+      setPlacedDecorations(prev => {
+        // Avoid duplicates
+        if (prev.some(d => d.placedId === decoration.placedId)) {
+          return prev;
         }
-      } catch (error) {
-        // Ignore parse errors from other messages
-      }
+        return [...prev, decoration];
+      });
     });
 
-    socket.addEventListener('open', () => {
-      console.log('Connected to room:', roomCode);
+    socket.on('sync-decorations', (decorations: PlacedDecoration[]) => {
+      setPlacedDecorations(decorations);
     });
 
-    socket.addEventListener('error', (error) => {
-      console.log('WebSocket connection failed - decorations will only be local');
+    socket.on('connect_error', (error) => {
+      console.log('Connection error - decorations will be local only');
     });
 
     socketRef.current = socket;
 
     return () => {
-      socket.close();
+      socket.emit('leave-room', roomCode);
+      socket.disconnect();
     };
   }, [roomCode]);
 
@@ -110,20 +120,21 @@ const TreeScene: React.FC<TreeSceneProps> = ({ roomCode = 'default' }) => {
     const newDecoration: PlacedDecoration = {
       ...draggedDecoration,
       id: `${draggedDecoration.id}-${Date.now()}`,
-      placedId: `placed-${Date.now()}`,
+      placedId: `placed-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       x,
       y,
       rotation: Math.random() * 20 - 10,
     };
 
+    // Add locally first for immediate feedback
     setPlacedDecorations(prev => [...prev, newDecoration]);
 
-    // Broadcast to other users
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify({
-        type: 'decoration-added',
+    // Broadcast to other devices via Socket.IO
+    if (socketRef.current?.connected) {
+      socketRef.current.emit('add-decoration', {
+        roomCode,
         decoration: newDecoration,
-      }));
+      });
     }
 
     // Create sparkle effect
