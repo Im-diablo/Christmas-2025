@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Music, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { useToast } from '@/hooks/use-toast';
 import gsap from 'gsap';
 
 interface MusicPlayerProps {
@@ -13,9 +14,15 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   const [showControls, setShowControls] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-  // Royalty-free cozy winter lo-fi music from Pixabay
-  const musicUrl = "https://cdn.pixabay.com/download/audio/2022/10/25/audio_946f9ed848.mp3";
+  // NOTE: For production, please use your own licensed audio file
+  // This is a placeholder - you'll need to add your own MP3 file to the public folder
+  // For now, using a royalty-free alternative. To use "Snowman" by Sia:
+  // 1. Purchase/license the song legally
+  // 2. Add the MP3 to your public folder
+  // 3. Update this URL to: "/snowman.mp3"
+  const musicUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 
   useEffect(() => {
     if (audioRef.current) {
@@ -23,7 +30,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
     }
   }, [volume]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     if (audioRef.current) {
       if (isPlaying) {
         // Fade out
@@ -36,17 +43,32 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
             if (audioRef.current) audioRef.current.volume = volume;
           }
         });
+        setIsPlaying(false);
       } else {
-        audioRef.current.volume = 0;
-        audioRef.current.play();
-        // Fade in
-        gsap.to(audioRef.current, {
-          volume: volume,
-          duration: 1,
-          ease: 'power2.inOut'
-        });
+        try {
+          audioRef.current.volume = 0;
+          const playPromise = audioRef.current.play();
+
+          if (playPromise !== undefined) {
+            await playPromise;
+            // Fade in
+            gsap.to(audioRef.current, {
+              volume: volume,
+              duration: 1,
+              ease: 'power2.inOut'
+            });
+            setIsPlaying(true);
+          }
+        } catch (error) {
+          console.error('Playback failed:', error);
+          toast({
+            title: "Can't play music",
+            description: "Your browser blocked autoplay. Try clicking the music button again.",
+            variant: "destructive",
+          });
+          setIsPlaying(false);
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -60,7 +82,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
 
   useEffect(() => {
     if (containerRef.current) {
-      gsap.fromTo(containerRef.current, 
+      gsap.fromTo(containerRef.current,
         { opacity: 0, y: -20 },
         { opacity: 1, y: 0, duration: 0.8, delay: 1, ease: 'power3.out' }
       );
@@ -68,19 +90,19 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   }, []);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`relative ${className}`}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
-      <audio 
-        ref={audioRef} 
-        src={musicUrl} 
-        loop 
+      <audio
+        ref={audioRef}
+        src={musicUrl}
+        loop
         preload="auto"
       />
-      
+
       {/* Main toggle button */}
       <button
         onClick={togglePlay}
@@ -105,7 +127,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
       </button>
 
       {/* Volume slider popup */}
-      <div 
+      <div
         className={`
           absolute top-full right-0 mt-2 p-4 rounded-xl glass-strong
           transition-all duration-300 min-w-[200px]

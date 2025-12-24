@@ -59,43 +59,47 @@ const DecorationPanel: React.FC<DecorationPanelProps> = ({ onDragStart }) => {
   };
 
   return (
-    <div className="glass-strong rounded-2xl p-4 w-72 max-h-[70vh] overflow-hidden flex flex-col">
+    <div className="glass-premium rounded-3xl p-6 w-80 max-h-[75vh] overflow-hidden flex flex-col shadow-2xl">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-medium text-foreground">Decorate the Tree</h2>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-xl bg-primary/20 glow-soft">
+          <Sparkles className="w-6 h-6 text-primary" />
+        </div>
+        <h2 className="text-xl font-semibold text-foreground">Decorate the Tree</h2>
       </div>
 
       {/* Category tabs */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-6">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryClick(cat.id)}
             className={`
-              flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm
-              transition-all duration-300
-              ${activeCategory === cat.id 
-                ? 'bg-primary/20 text-primary border border-primary/30' 
-                : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-transparent'
+              flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium
+              transition-all duration-300 transform
+              ${activeCategory === cat.id
+                ? 'bg-primary/30 text-primary border-2 border-primary/50 scale-105 shadow-lg glow-soft'
+                : 'bg-muted/40 text-muted-foreground hover:bg-muted/60 border-2 border-transparent hover:scale-105'
               }
             `}
           >
-            <span>{cat.icon}</span>
+            <span className="text-base">{cat.icon}</span>
             <span className="hidden sm:inline">{cat.label}</span>
           </button>
         ))}
       </div>
 
       {/* Decorations grid */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-2">
         <div className="grid grid-cols-4 gap-3">
           {decorations[activeCategory].map((decoration, index) => (
             <div
               key={decoration.id}
-              className="aspect-square p-2 rounded-xl bg-muted/30 hover:bg-muted/50 
-                         transition-all duration-300 hover:scale-105 animate-fade-in"
-              style={{ animationDelay: `${index * 50}ms` }}
+              className="aspect-square p-2 rounded-2xl bg-muted/40 hover:bg-muted/60 
+                         transition-all duration-300 hover:scale-110 animate-fade-in
+                         border border-border/20 hover:border-primary/30
+                         shadow-md hover:shadow-xl cursor-grab active:cursor-grabbing"
+              style={{ animationDelay: `${index * 40}ms` }}
             >
               <DecorationItem
                 decoration={decoration}

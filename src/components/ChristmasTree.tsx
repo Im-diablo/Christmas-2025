@@ -37,7 +37,7 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
 
   // Calculate glow intensity based on warmth
   const glowIntensity = Math.min(warmth / 100, 1);
-  const glowFilter = `drop-shadow(0 0 ${20 + glowIntensity * 40}px rgba(255, 200, 100, ${0.3 + glowIntensity * 0.4}))`;
+  const glowFilter = `drop-shadow(0 0 ${30 + glowIntensity * 60}px rgba(255, 200, 100, ${0.4 + glowIntensity * 0.5})) drop-shadow(0 0 ${15 + glowIntensity * 30}px rgba(255, 215, 0, ${0.3 + glowIntensity * 0.4}))`;
 
   const lightPositions = [
     // Layer 1 (top)
@@ -103,28 +103,28 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
           fill="url(#treeGradient)"
           className="drop-shadow-lg"
         />
-        
+
         {/* Layer 4 */}
         <path
           d="M100 310 L200 210 L300 310 Z"
           fill="url(#treeGradient2)"
           className="drop-shadow-lg"
         />
-        
+
         {/* Layer 3 */}
         <path
           d="M120 250 L200 160 L280 250 Z"
           fill="url(#treeGradient)"
           className="drop-shadow-lg"
         />
-        
+
         {/* Layer 2 */}
         <path
           d="M145 200 L200 120 L255 200 Z"
           fill="url(#treeGradient2)"
           className="drop-shadow-lg"
         />
-        
+
         {/* Layer 1 (top) */}
         <path
           d="M165 150 L200 80 L235 150 Z"
@@ -133,16 +133,17 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
         />
 
         {/* Star topper */}
-        <g transform="translate(200, 50)">
+        <g transform="translate(200, 50)" className="animate-spin" style={{ animationDuration: '20s' }}>
           <polygon
             points="0,-30 8,-10 30,-10 12,5 20,28 0,15 -20,28 -12,5 -30,-10 -8,-10"
             fill="url(#starGradient)"
             className="animate-pulse"
-            style={{ 
-              filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))',
+            style={{
+              filter: 'drop-shadow(0 0 25px rgba(255, 215, 0, 1)) drop-shadow(0 0 40px rgba(255, 215, 0, 0.6))',
               transformOrigin: 'center'
             }}
           />
+          <circle cx="0" cy="0" r="8" fill="#FFFACD" opacity="0.9" />
         </g>
 
         {/* Fairy lights */}
@@ -152,10 +153,10 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
             ref={el => lightsRef.current[i] = el}
             cx={light.cx}
             cy={light.cy}
-            r="6"
+            r="7"
             fill={light.color}
             style={{
-              filter: `drop-shadow(0 0 8px ${light.color})`,
+              filter: `drop-shadow(0 0 12px ${light.color}) drop-shadow(0 0 6px ${light.color})`,
             }}
           />
         ))}
@@ -163,12 +164,14 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
         {/* Gradients */}
         <defs>
           <linearGradient id="treeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="hsl(145, 60%, 32%)" />
-            <stop offset="100%" stopColor="hsl(145, 55%, 22%)" />
+            <stop offset="0%" stopColor="hsl(145, 65%, 35%)" />
+            <stop offset="50%" stopColor="hsl(145, 60%, 28%)" />
+            <stop offset="100%" stopColor="hsl(145, 55%, 20%)" />
           </linearGradient>
           <linearGradient id="treeGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="hsl(145, 58%, 28%)" />
-            <stop offset="100%" stopColor="hsl(145, 52%, 20%)" />
+            <stop offset="0%" stopColor="hsl(145, 62%, 32%)" />
+            <stop offset="50%" stopColor="hsl(145, 58%, 25%)" />
+            <stop offset="100%" stopColor="hsl(145, 52%, 18%)" />
           </linearGradient>
           <linearGradient id="trunkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="#5D3A1A" />
@@ -180,9 +183,10 @@ const ChristmasTree: React.FC<{ warmth?: number }> = ({ warmth = 0 }) => {
             <stop offset="100%" stopColor="#6B3410" />
           </linearGradient>
           <radialGradient id="starGradient" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFFACD" />
-            <stop offset="50%" stopColor="#FFD700" />
-            <stop offset="100%" stopColor="#FFA500" />
+            <stop offset="0%" stopColor="#FFFEF0" />
+            <stop offset="30%" stopColor="#FFFACD" />
+            <stop offset="60%" stopColor="#FFD700" />
+            <stop offset="100%" stopColor="#FFB700" />
           </radialGradient>
         </defs>
       </svg>

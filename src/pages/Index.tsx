@@ -36,7 +36,7 @@ const Index = () => {
     const code = generateRoomCode();
     setRoomCode(code);
     setAppState('decorating');
-    
+
     // Update URL without reload
     window.history.pushState({}, '', `?room=${code}`);
   };
@@ -45,6 +45,12 @@ const Index = () => {
     setRoomCode(code);
     setAppState('decorating');
     window.history.pushState({}, '', `?room=${code}`);
+  };
+
+  const handleBackToLanding = () => {
+    setAppState('landing');
+    setRoomCode('');
+    window.history.pushState({}, '', '/');
   };
 
   return (
@@ -61,12 +67,12 @@ const Index = () => {
       <div className="min-h-screen bg-night relative overflow-hidden">
         {/* Vignette overlay */}
         <div className="fixed inset-0 vignette pointer-events-none z-20" />
-        
+
         {/* Snowfall */}
         <Snowfall intensity={appState === 'landing' ? 'medium' : 'light'} />
 
         {/* Background gradient */}
-        <div 
+        <div
           className="fixed inset-0 pointer-events-none"
           style={{
             background: 'radial-gradient(ellipse at 50% 100%, rgba(139, 90, 43, 0.15) 0%, transparent 60%)',
@@ -74,12 +80,12 @@ const Index = () => {
         />
 
         {/* Header - only show when decorating */}
-        {appState === 'decorating' && <Header roomCode={roomCode} />}
+        {appState === 'decorating' && <Header roomCode={roomCode} onBackToLanding={handleBackToLanding} />}
 
         {/* Main content */}
         <main className="relative z-10 min-h-screen flex flex-col">
           {appState === 'landing' ? (
-            <LandingPage 
+            <LandingPage
               onCreateRoom={handleCreateRoom}
               onJoinRoom={handleJoinRoom}
             />

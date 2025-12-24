@@ -56,18 +56,23 @@
     --magic-glow: 280 80% 65%;
     --cozy-orange: 25 90% 55%;
     --night-blue: 220 40% 12%;
-    
+
     /* Gradients */
     --gradient-night: linear-gradient(180deg, hsl(220 35% 6%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 18%) 100%);
     --gradient-cozy: linear-gradient(135deg, hsl(220 30% 10%) 0%, hsl(220 25% 15%) 100%);
     --gradient-magic: linear-gradient(135deg, hsl(280 60% 50% / 0.3) 0%, hsl(42 90% 55% / 0.3) 100%);
     --gradient-warmth: linear-gradient(180deg, hsl(25 90% 55% / 0.1) 0%, hsl(0 70% 50% / 0.1) 100%);
-    
+    --gradient-aurora: linear-gradient(135deg, hsl(280 70% 60% / 0.2) 0%, hsl(200 80% 60% / 0.2) 50%, hsl(160 70% 60% / 0.2) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(42 100% 60%) 0%, hsl(38 100% 55%) 50%, hsl(42 100% 50%) 100%);
+
     /* Shadows */
     --shadow-glow: 0 0 40px hsl(42 90% 55% / 0.3);
     --shadow-magic: 0 0 60px hsl(280 80% 65% / 0.4);
     --shadow-cozy: 0 20px 60px hsl(220 30% 4% / 0.5);
     --shadow-ornament: 0 4px 20px hsl(0 0% 0% / 0.3);
+    --shadow-premium: 0 10px 40px hsl(42 90% 55% / 0.4), 0 4px 12px hsl(42 90% 55% / 0.3);
+    --shadow-deep: 0 20px 60px hsl(220 30% 4% / 0.7), 0 8px 24px hsl(220 30% 4% / 0.5);
+    --shadow-float: 0 15px 35px hsl(220 30% 4% / 0.4), 0 5px 15px hsl(0 0% 0% / 0.3);
 
     /* Sidebar (unused but required) */
     --sidebar-background: 220 25% 10%;
@@ -105,31 +110,51 @@
 }
 
 @layer components {
+
   /* Glassmorphism */
   .glass {
     @apply bg-card/60 backdrop-blur-xl border border-border/30;
+    box-shadow: 0 8px 32px hsl(220 30% 4% / 0.3);
   }
 
   .glass-strong {
     @apply bg-card/80 backdrop-blur-2xl border border-border/40;
+    box-shadow: 0 8px 32px hsl(220 30% 4% / 0.5);
+  }
+
+  .glass-premium {
+    @apply bg-card/70 backdrop-blur-2xl border border-primary/20;
+    box-shadow: 0 8px 32px hsl(220 30% 4% / 0.4), 0 0 20px hsl(42 90% 55% / 0.1);
   }
 
   /* Magical glow effects */
   .glow-gold {
-    box-shadow: 0 0 30px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.4), 0 0 60px hsl(var(--primary) / 0.2);
   }
 
   .glow-magic {
-    box-shadow: 0 0 40px hsl(var(--magic-glow) / 0.4);
+    box-shadow: 0 0 40px hsl(var(--magic-glow) / 0.4), 0 0 80px hsl(var(--magic-glow) / 0.2);
   }
 
   .glow-fairy {
-    box-shadow: 0 0 20px hsl(var(--fairy-light) / 0.6);
+    box-shadow: 0 0 20px hsl(var(--fairy-light) / 0.6), 0 0 40px hsl(var(--fairy-light) / 0.3);
+  }
+
+  .glow-premium {
+    box-shadow: var(--shadow-premium);
+  }
+
+  .glow-soft {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
 
   /* Cozy text styles */
   .text-glow {
-    text-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+    text-shadow: 0 0 30px hsl(var(--primary) / 0.5), 0 0 60px hsl(var(--primary) / 0.3);
+  }
+
+  .text-glow-strong {
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.7), 0 0 80px hsl(var(--primary) / 0.4), 0 2px 4px hsl(0 0% 0% / 0.3);
   }
 
   /* Interactive states */
@@ -144,45 +169,170 @@
   .interactive:active {
     @apply scale-95;
   }
+
+  .interactive-premium {
+    @apply transition-all duration-500 ease-out;
+  }
+
+  .interactive-premium:hover {
+    @apply scale-110;
+    filter: brightness(1.1);
+  }
+
+  .interactive-premium:active {
+    @apply scale-95;
+  }
 }
 
 @layer utilities {
+
   /* Custom animations */
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
 
   @keyframes pulse-glow {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
   }
 
   @keyframes shimmer {
-    0% { background-position: -200% center; }
-    100% { background-position: 200% center; }
+    0% {
+      background-position: -200% center;
+    }
+
+    100% {
+      background-position: 200% center;
+    }
   }
 
   @keyframes sway {
-    0%, 100% { transform: rotate(-1deg); }
-    50% { transform: rotate(1deg); }
+
+    0%,
+    100% {
+      transform: rotate(-1deg);
+    }
+
+    50% {
+      transform: rotate(1deg);
+    }
   }
 
   @keyframes twinkle {
-    0%, 100% { opacity: 0.4; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
+
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(0.8);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
   }
 
   @keyframes snow-fall {
-    0% { transform: translateY(-100vh) rotate(0deg); opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    0% {
+      transform: translateY(-100vh) rotate(0deg);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    90% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
   }
 
   @keyframes sparkle {
-    0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
-    50% { transform: scale(1) rotate(180deg); opacity: 1; }
+
+    0%,
+    100% {
+      transform: scale(0) rotate(0deg);
+      opacity: 0;
+    }
+
+    50% {
+      transform: scale(1) rotate(180deg);
+      opacity: 1;
+    }
+  }
+
+  @keyframes aurora-wave {
+
+    0%,
+    100% {
+      transform: translateX(-50%) translateY(0) scale(1);
+      opacity: 0.3;
+    }
+
+    50% {
+      transform: translateX(-50%) translateY(-20px) scale(1.1);
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes gradient-shift {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes bounce-in {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    50% {
+      transform: scale(1.1);
+    }
+
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      filter: brightness(1) drop-shadow(0 0 10px hsl(var(--primary) / 0.3));
+    }
+
+    50% {
+      filter: brightness(1.2) drop-shadow(0 0 20px hsl(var(--primary) / 0.6));
+    }
   }
 
   .animate-float {
@@ -213,6 +363,23 @@
 
   .animate-sparkle {
     animation: sparkle 0.6s ease-out forwards;
+  }
+
+  .animate-aurora {
+    animation: aurora-wave 8s ease-in-out infinite;
+  }
+
+  .animate-gradient {
+    animation: gradient-shift 6s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  .animate-bounce-in {
+    animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
   }
 
   /* Vignette effect */

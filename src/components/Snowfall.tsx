@@ -11,8 +11,8 @@ interface Snowflake {
   wobbleSpeed: number;
 }
 
-const Snowfall: React.FC<{ intensity?: 'light' | 'medium' | 'heavy' }> = ({ 
-  intensity = 'medium' 
+const Snowfall: React.FC<{ intensity?: 'light' | 'medium' | 'heavy' }> = ({
+  intensity = 'medium'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const snowflakesRef = useRef<Snowflake[]>([]);
@@ -47,11 +47,11 @@ const Snowfall: React.FC<{ intensity?: 'light' | 'medium' | 'heavy' }> = ({
     snowflakesRef.current = Array.from({ length: count }, () => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
-      size: Math.random() * 4 + 1,
-      speed: Math.random() * 1.5 + 0.5,
-      opacity: Math.random() * 0.6 + 0.3,
+      size: Math.random() * 5 + 0.5, // More size variety
+      speed: Math.random() * 2 + 0.3, // More speed variety
+      opacity: Math.random() * 0.7 + 0.2,
       wobble: Math.random() * Math.PI * 2,
-      wobbleSpeed: Math.random() * 0.02 + 0.01,
+      wobbleSpeed: Math.random() * 0.03 + 0.01,
     }));
 
     // Animate with GSAP ticker for smooth performance
