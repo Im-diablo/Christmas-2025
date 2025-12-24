@@ -10,11 +10,16 @@ interface PlacedDecoration extends Decoration {
   placedId: string;
 }
 
-const TreeScene: React.FC = () => {
+interface TreeSceneProps {
+  roomCode?: string;
+}
+
+const TreeScene: React.FC<TreeSceneProps> = ({ roomCode = 'default' }) => {
   const [placedDecorations, setPlacedDecorations] = useState<PlacedDecoration[]>([]);
   const [draggedDecoration, setDraggedDecoration] = useState<Decoration | null>(null);
   const treeContainerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
+  const socketRef = useRef<WebSocket | null>(null);
 
   const warmth = Math.min(100, placedDecorations.length * 8);
 
@@ -23,11 +28,11 @@ const TreeScene: React.FC = () => {
     if (sceneRef.current) {
       gsap.fromTo(sceneRef.current.children,
         { opacity: 0, y: 30 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: 0.8, 
-          stagger: 0.1, 
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          stagger: 0.1,
           ease: 'power3.out',
           delay: 0.3
         }
@@ -35,10 +40,50 @@ const TreeScene: React.FC = () => {
     }
   }, []);
 
+  // Real-time sync with WebSocket
+  useEffect(() => {
+    if (!roomCode) return;
+
+    // Connect to a free WebSocket relay service (wss://socketsbay.com/wss/v2/1/demo/)
+    // For production, you should use your own WebSocket server
+    const socket = new WebSocket(`wss://socketsbay.com/wss/v2/1/${roomCode}/`);
+
+    socket.addEventListener('message', (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'decoration-added' && data.decoration) {
+          setPlacedDecorations(prev => {
+            // Avoid duplicates
+            if (prev.some(d => d.placedId === data.decoration.placedId)) {
+              return prev;
+            }
+            return [...prev, data.decoration];
+          });
+        }
+      } catch (error) {
+        // Ignore parse errors from other messages
+      }
+    });
+
+    socket.addEventListener('open', () => {
+      console.log('Connected to room:', roomCode);
+    });
+
+    socket.addEventListener('error', (error) => {
+      console.log('WebSocket connection failed - decorations will only be local');
+    });
+
+    socketRef.current = socket;
+
+    return () => {
+      socket.close();
+    };
+  }, [roomCode]);
+
   const handleDragStart = (e: React.DragEvent, decoration: Decoration) => {
     setDraggedDecoration(decoration);
     e.dataTransfer.effectAllowed = 'move';
-    
+
     // Create a custom drag image
     const dragImg = document.createElement('div');
     dragImg.style.opacity = '0';
@@ -54,7 +99,7 @@ const TreeScene: React.FC = () => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    
+
     if (!draggedDecoration || !treeContainerRef.current) return;
 
     const rect = treeContainerRef.current.getBoundingClientRect();
@@ -73,6 +118,14 @@ const TreeScene: React.FC = () => {
 
     setPlacedDecorations(prev => [...prev, newDecoration]);
 
+    // Broadcast to other users
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({
+        type: 'decoration-added',
+        decoration: newDecoration,
+      }));
+    }
+
     // Create sparkle effect
     createSparkle(e.clientX, e.clientY, draggedDecoration.color);
 
@@ -82,8 +135,8 @@ const TreeScene: React.FC = () => {
       if (element) {
         gsap.fromTo(element,
           { scale: 0, rotation: -180 },
-          { 
-            scale: 1, 
+          {
+            scale: 1,
             rotation: newDecoration.rotation,
             duration: 0.6,
             ease: 'elastic.out(1, 0.5)'
@@ -108,7 +161,7 @@ const TreeScene: React.FC = () => {
       </div>
 
       {/* Tree Container - Center */}
-      <div 
+      <div
         ref={treeContainerRef}
         className="relative flex-shrink-0"
         style={{ width: '400px', height: '500px' }}
@@ -116,7 +169,7 @@ const TreeScene: React.FC = () => {
         onDrop={handleDrop}
       >
         <ChristmasTree warmth={warmth} />
-        
+
         {/* Placed decorations */}
         {placedDecorations.map((decoration) => (
           <div
@@ -132,8 +185,8 @@ const TreeScene: React.FC = () => {
             }}
             onClick={() => handleDecorationClick(decoration.placedId)}
           >
-            <DecorationItem 
-              decoration={decoration} 
+            <DecorationItem
+              decoration={decoration}
               isDraggable={false}
             />
           </div>

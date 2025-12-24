@@ -91,7 +91,7 @@ const Index = () => {
             />
           ) : (
             <div className="flex-1 pt-20">
-              <TreeScene />
+              <TreeScene roomCode={roomCode} />
             </div>
           )}
         </main>
