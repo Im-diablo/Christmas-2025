@@ -16,13 +16,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({ className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  // NOTE: For production, please use your own licensed audio file
-  // This is a placeholder - you'll need to add your own MP3 file to the public folder
-  // For now, using a royalty-free alternative. To use "Snowman" by Sia:
-  // 1. Purchase/license the song legally
-  // 2. Add the MP3 to your public folder
-  // 3. Update this URL to: "/snowman.mp3"
-  const musicUrl = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+  // Using local audio file - add "snowman.mp3" to the public folder
+  // To add the song: Download "Snowman" by Sia legally, then place the MP3 file
+  // in the public folder as "snowman.mp3"
+  const musicUrl = "/snowman.mp3";
 
   useEffect(() => {
     if (audioRef.current) {
